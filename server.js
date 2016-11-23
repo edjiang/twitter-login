@@ -4,9 +4,11 @@ const cookieParser = require('cookie-parser')
 const stormpathSDK = require('stormpath')
 const stormpath = require('express-stormpath')
 
+// External libraries for OAuth / HTTP requests
 const OAuth = require('oauth').OAuth
 const request = require('request')
 
+// Configure the Twitter OAuth client
 const twitter = new OAuth(
     'https://api.twitter.com/oauth/request_token',
     'https://api.twitter.com/oauth/access_token',
@@ -46,8 +48,8 @@ app.get('/twitter-consumer', function(req, res) {
       return res.send('Error.')
     }
     const stormpathApplication = req.app.get('stormpathApplication')
-    const socialAuthenticator = new stormpathSDK.OAuthStormpathSocialAuthenticator(stormpathApplication)
 
+    // Construct manual request to /oauth/token
     const stormpathSocialRequest = {
       url: stormpathApplication.href + '/oauth/token',
       auth: {
@@ -68,6 +70,7 @@ app.get('/twitter-consumer', function(req, res) {
       }
       const oauthResult = JSON.parse(body)
 
+      // Set the cookies since that's what the framework integration is expecting. 
       res.cookie('access_token', oauthResult.access_token)
       res.cookie('refresh_token', oauthResult.refresh_token)
       res.redirect('/')
